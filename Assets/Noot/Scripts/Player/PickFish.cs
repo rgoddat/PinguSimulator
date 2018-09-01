@@ -6,10 +6,12 @@ public class PickFish : MonoBehaviour
 {
     public AudioClip SoundFishPick;
     private ScoreManager scoreManager;
+    private PhotonView view;
 
     private void Start()
     {
-        scoreManager = GameObject.Find("FPSController").GetComponent<ScoreManager>();
+        scoreManager = GetComponent<ScoreManager>();
+        view = GetComponent<PhotonView>();
     }
 
     private void OnTriggerEnter(Collider collision)
@@ -17,15 +19,44 @@ public class PickFish : MonoBehaviour
         Debug.Log("collision with" + collision.gameObject.name);
         if(collision.gameObject.tag == "Fish")
         {
-            StartCoroutine(DestroyFish(collision.gameObject));
+            collision.GetComponent<AudioSource>().PlayOneShot(SoundFishPick);
+            if (view.isMine)
+            {
+                view.RPC("DestroyGOMasterClient", PhotonTargets.MasterClient, collision.gameObject.name);
+                scoreManager.AddScore();
+            }
         }
     }
 
-    private IEnumerator DestroyFish(GameObject fish)
+    IEnumerator DestroyGOAfterDelay(float delay, GameObject goToDestroy)
     {
-        fish.GetComponent<AudioSource>().PlayOneShot(SoundFishPick);
-        scoreManager.AddScore();
-        yield return new WaitForSeconds(0.5f);
-        Destroy(fish);
+        yield return new WaitForSeconds(delay);
+        PhotonNetwork.Destroy(goToDestroy);
+    }
+
+    [PunRPC]
+    void DestroyGOMasterClient(string obj)
+    {
+        if (GameObject.Find("Fishes").transform.childCount == 1)
+        {
+            view.RPC("EndOfGame", PhotonTargets.All);
+        }
+        Debug.Log("RPC Received, destroy " + obj);
+        GameObject goToDestroy = GameObject.Find(obj);
+        goToDestroy.tag = "Untagged";
+        StartCoroutine(DestroyGOAfterDelay(0.5f, goToDestroy));
+        
+    }
+
+    [PunRPC]
+    void UpdateListScoreForAllPlayers()
+    {
+        //GameObject.Find("NetworkManager").GetComponent<NetworkScript>().UpdateListOfPlayers();
+    }
+
+    [PunRPC]
+    void EndOfGame()
+    {
+        PhotonNetwork.LoadLevel("Lobby");
     }
 }
