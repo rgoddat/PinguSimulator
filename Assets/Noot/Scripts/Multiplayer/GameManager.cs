@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour {
 
     public Text TxtRoom;
     public Text TxtPlayerList;
+    public Text TxtScore;
     public GameObject PlayerPrefab;
     public Transform SpawnPoint;
 
@@ -45,6 +46,15 @@ public class GameManager : MonoBehaviour {
         foreach (PhotonPlayer player in PhotonNetwork.playerList)
         {
             TxtPlayerList.text += player.NickName + "\n";
+        }
+    }
+
+    public void UpdateListOfPlayers()
+    {
+        TxtPlayerList.text = null;
+        foreach (PhotonPlayer player in PhotonNetwork.playerList)
+        {
+            TxtPlayerList.text += player.NickName + "\t Score: " + player.GetScore() + "\n";
         }
     }
 

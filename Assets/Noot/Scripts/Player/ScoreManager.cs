@@ -18,6 +18,7 @@ public class ScoreManager : MonoBehaviour {
     {
         score++;
         TxtScore.text = score.ToString();
+
     }
 
 }
