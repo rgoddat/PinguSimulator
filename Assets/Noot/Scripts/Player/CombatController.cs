@@ -6,6 +6,7 @@ using UnityStandardAssets.CrossPlatformInput;
 public class CombatController : MonoBehaviour {
 
     public float FireRate = 1f, ThrowForce = 500f;
+    public GameObject Head;
     public GameObject Eject;
     public GameObject SnowballPrefab;
     public AudioClip SoundShot;
@@ -26,7 +27,7 @@ public class CombatController : MonoBehaviour {
         {
             nextShot = Time.time + FireRate;
             audioSource.PlayOneShot(SoundShot);
-            view.RPC("ShootSnowball", PhotonTargets.All, Eject.transform.position, transform.TransformDirection(Vector3.forward));
+            view.RPC("ShootSnowball", PhotonTargets.All, Eject.transform.position, Head.transform.TransformDirection(Vector3.forward));
         }
     }
 
