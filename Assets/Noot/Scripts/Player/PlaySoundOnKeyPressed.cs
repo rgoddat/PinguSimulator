@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityStandardAssets.CrossPlatformInput;
 
 public class PlaySoundOnKeyPressed : MonoBehaviour {
 
@@ -14,7 +15,7 @@ public class PlaySoundOnKeyPressed : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetKeyDown (KeyCode.E) && view.isMine) {
+		if (CrossPlatformInputManager.GetButtonDown("Noot") && view.isMine) {
             GetComponent<AudioSource>().PlayOneShot(NootSound);
 		}
 	}
