@@ -23,7 +23,7 @@ public class CombatController : MonoBehaviour {
 
     private void FixedUpdate()
     {
-        if (CrossPlatformInputManager.GetButtonDown("Fire1") && Time.time > nextShot)
+        if (CrossPlatformInputManager.GetButtonDown("Fire1") && Time.time > nextShot && view.isMine)
         {
             nextShot = Time.time + FireRate;
             audioSource.PlayOneShot(SoundShot);
