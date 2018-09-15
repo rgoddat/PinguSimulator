@@ -25,6 +25,7 @@ public class PickFish : MonoBehaviour
         Debug.Log("collision with" + collision.gameObject.name);
         if(collision.gameObject.tag == "Fish")
         {
+            //collision.gameObject.GetComponent<AudioSource>().PlayOneShot(SoundFishPick);
             if (view.isMine)
             {
                 view.RPC("DestroyGOMasterClient", PhotonTargets.MasterClient, collision.gameObject.name);
@@ -39,7 +40,6 @@ public class PickFish : MonoBehaviour
 
     IEnumerator DestroyGOAfterDelay(float delay, GameObject goToDestroy)
     {
-        goToDestroy.GetComponent<AudioSource>().PlayOneShot(SoundFishPick);
         yield return new WaitForSeconds(delay);
         PhotonNetwork.Destroy(goToDestroy);
     }
@@ -52,10 +52,18 @@ public class PickFish : MonoBehaviour
             view.RPC("EndOfGame", PhotonTargets.All);
         }
         Debug.Log("RPC Received, destroy " + obj);
+        view.RPC("PlayPickSoundForAll", PhotonTargets.All, obj);
         GameObject goToDestroy = GameObject.Find(obj);
         goToDestroy.tag = "Untagged";
         StartCoroutine(DestroyGOAfterDelay(0.5f, goToDestroy));
         
+    }
+
+    [PunRPC]
+    void PlayPickSoundForAll(string obj)
+    {
+        GameObject goPicked = GameObject.Find(obj);
+        goPicked.GetComponent<AudioSource>().PlayOneShot(SoundFishPick);
     }
 
     [PunRPC]
