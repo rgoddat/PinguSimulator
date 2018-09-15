@@ -8,6 +8,7 @@ public class SnowballScript : MonoBehaviour {
     public AudioClip SoundHit;
 
     private AudioSource audioSource;
+    private bool isActive = true;
 
 	// Use this for initialization
 	void Start () {
@@ -17,6 +18,13 @@ public class SnowballScript : MonoBehaviour {
     private void OnCollisionEnter(Collision collision)
     {
         audioSource.PlayOneShot(SoundHit);
+        
+        if(collision.gameObject.tag == "Player" && isActive)
+        {
+            Debug.Log("Snowball hit on player : " + collision.gameObject.GetComponent<PhotonView>().owner.NickName);
+            isActive = false;
+        }
         Destroy(gameObject, LifeSpan);
+        
     }
 }
