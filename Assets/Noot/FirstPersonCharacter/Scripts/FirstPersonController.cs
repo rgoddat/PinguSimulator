@@ -65,7 +65,6 @@ public class FirstPersonController : MonoBehaviour
     {
         if (view.isMine)
         {
-            Debug.Log("MIIIINE");
             RotateView();
             // the jump state needs to read here to make sure it is not missed
             if (!m_Jump)

@@ -22,10 +22,9 @@ public class PickFish : MonoBehaviour
 
     private void OnTriggerEnter(Collider collision)
     {
-        Debug.Log("collision with" + collision.gameObject.name);
+        //Debug.Log("collision with" + collision.gameObject.name);
         if(collision.gameObject.tag == "Fish")
         {
-            //collision.gameObject.GetComponent<AudioSource>().PlayOneShot(SoundFishPick);
             if (view.isMine)
             {
                 view.RPC("DestroyGOMasterClient", PhotonTargets.MasterClient, collision.gameObject.name);
@@ -51,7 +50,7 @@ public class PickFish : MonoBehaviour
         {
             view.RPC("EndOfGame", PhotonTargets.All);
         }
-        Debug.Log("RPC Received, destroy " + obj);
+        //Debug.Log("RPC Received, destroy " + obj);
         view.RPC("PlayPickSoundForAll", PhotonTargets.All, obj);
         GameObject goToDestroy = GameObject.Find(obj);
         goToDestroy.tag = "Untagged";
@@ -69,7 +68,7 @@ public class PickFish : MonoBehaviour
     [PunRPC]
     void UpdateListScoreForAllPlayers()
     {
-        Debug.Log("UpdatingList");
+        //Debug.Log("UpdatingList");
         GameObject.Find("GameManager").GetComponent<GameManager>().UpdateListOfPlayers();
     }
 

@@ -21,7 +21,8 @@ public class SnowballScript : MonoBehaviour {
         
         if(collision.gameObject.tag == "Player" && isActive)
         {
-            Debug.Log("Snowball hit on player : " + collision.gameObject.GetComponent<PhotonView>().owner.NickName);
+            Debug.Log("Collision on player");
+            collision.gameObject.GetComponent<CombatController>().DropFish(collision.gameObject.GetComponent<PhotonView>().owner);
             isActive = false;
         }
         Destroy(gameObject, LifeSpan);

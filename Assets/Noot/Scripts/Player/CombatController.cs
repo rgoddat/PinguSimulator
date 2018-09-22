@@ -9,6 +9,8 @@ public class CombatController : MonoBehaviour {
     public GameObject Head;
     public GameObject Eject;
     public GameObject SnowballPrefab;
+    public GameObject FishEject;
+    public GameObject FishPrefab;
     public AudioClip SoundShot;
 
     private PhotonView view;
@@ -31,11 +33,34 @@ public class CombatController : MonoBehaviour {
         }
     }
 
+    public void DropFish(PhotonPlayer owner)
+    {
+        Debug.Log("DropFish ?");
+        if (owner.GetScore() > 0 && owner.ID == view.ownerId)
+        {
+            Debug.Log("Yes, drop plz");
+            owner.AddScore(-1);
+            view.RPC("DropFishMasterClient", PhotonTargets.MasterClient, FishEject.transform.position, transform.TransformDirection(Vector3.back));
+            view.RPC("UpdateListScoreForAllPlayers", PhotonTargets.All);
+        }
+    }
+
     [PunRPC]
     void ShootSnowball(Vector3 pos, Vector3 dir)
     {
         GameObject snowball;
         snowball = Instantiate(SnowballPrefab, pos, Quaternion.identity);
         snowball.GetComponent<Rigidbody>().AddForce(dir * ThrowForce);
+    }
+
+    [PunRPC]
+    void DropFishMasterClient(Vector3 pos, Vector3 dir)
+    {
+        Debug.Log("Instantiating new fish");
+        GameObject fish;
+        fish = PhotonNetwork.Instantiate(FishPrefab.name, pos, Quaternion.identity, 0);
+        fish.GetComponent<Rigidbody>().isKinematic = false;
+        fish.GetComponent<Rigidbody>().AddForce(dir * 200f);
+        fish.GetComponent<BoxCollider>().isTrigger = false;
     }
 }
