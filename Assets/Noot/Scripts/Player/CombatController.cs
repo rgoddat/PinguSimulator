@@ -38,7 +38,7 @@ public class CombatController : MonoBehaviour {
         Debug.Log("DropFish ?");
         if (owner.GetScore() > 0 && owner.ID == view.ownerId)
         {
-            Debug.Log("Yes, drop plz");
+            Debug.Log("Yes, drop plz" + view.owner.NickName);
             owner.AddScore(-1);
             view.RPC("DropFishMasterClient", PhotonTargets.MasterClient, FishEject.transform.position, transform.TransformDirection(Vector3.back));
             view.RPC("UpdateListScoreForAllPlayers", PhotonTargets.All);
