@@ -8,20 +8,22 @@ public class GameManager : MonoBehaviour {
     public Text TxtRoom;
     public Text TxtPlayerList;
     public Text TxtScore;
+    public Text TxtWaitForPlayer;
     public GameObject PlayerPrefab;
+    public GameObject MainCamera;
     public Transform SpawnPoint;
+
+    private const int MIN_PLAYER_COUNT = 2;
 
     // Use this for initialization
     void Start()
     {
-        TxtRoom.text = PhotonNetwork.player.NickName + " you are in room: " + PhotonNetwork.room.Name;
-        DisplayPlayers();
-        GameObject connectedPlayer = PhotonNetwork.Instantiate(PlayerPrefab.name, SpawnPoint.position, Quaternion.identity, 0);
-        connectedPlayer.GetComponent<FirstPersonController>().enabled = true;
-        connectedPlayer.GetComponentInChildren<Camera>().enabled = true;
-        Debug.Log(connectedPlayer.GetComponentInChildren<Camera>());
+        OnJoinedRoom();
+        //GameObject connectedPlayer = PhotonNetwork.Instantiate(PlayerPrefab.name, SpawnPoint.position, Quaternion.identity, 0);
+        //connectedPlayer.GetComponent<FirstPersonController>().enabled = true;
+        //connectedPlayer.GetComponentInChildren<Camera>().enabled = true;
 
-        connectedPlayer.GetComponentInChildren<Camera>().GetComponent<AudioListener>().enabled = true;
+        //connectedPlayer.GetComponentInChildren<Camera>().GetComponent<AudioListener>().enabled = true;
     }
 
     public void BackToLooby()
@@ -40,13 +42,45 @@ public class GameManager : MonoBehaviour {
         PhotonNetwork.LoadLevel("Lobby");
     }
 
-    void DisplayPlayers()
+    void OnJoinedRoom()
     {
-        TxtPlayerList.text = null;
-        foreach (PhotonPlayer player in PhotonNetwork.playerList)
+        Debug.Log("OnJoinedRoom");
+        TxtRoom.text = PhotonNetwork.player.NickName + " you are in room: " + PhotonNetwork.room.Name;
+        UpdateListOfPlayers();
+        
+        if (PhotonNetwork.room.PlayerCount < MIN_PLAYER_COUNT)
         {
-            TxtPlayerList.text += player.NickName + "\n";
+            TxtWaitForPlayer.text = string.Format("Waiting for {0} more players to start", (MIN_PLAYER_COUNT - PhotonNetwork.room.PlayerCount));// + "/" + PhotonNetwork.room.MaxPlayers);
+            return;
         }
+        TxtWaitForPlayer.text = "";
+        
+
+        //Spawnpoint
+        Vector3 sp = new Vector3(SpawnPoint.transform.position.x + Random.Range(-1.0f, 1.0f), SpawnPoint.transform.position.y, SpawnPoint.transform.position.z + Random.Range(-1.0f, 1.0f));
+
+        sp = SpawnPoint.transform.position;
+
+        GameObject MyPlayer;
+
+        MyPlayer = PhotonNetwork.Instantiate(PlayerPrefab.name, sp, Quaternion.identity, 0);
+        MyPlayer.GetComponent<FirstPersonController>().enabled = true;
+        MyPlayer.GetComponentInChildren<Camera>().enabled = true;
+
+        MyPlayer.GetComponentInChildren<Camera>().GetComponent<AudioListener>().enabled = true;
+
+        UpdateListOfPlayers();
+    }
+
+    void OnPhotonPlayerConnected()
+    {
+        OnJoinedRoom();
+        UpdateListOfPlayers();
+    }
+
+    void OnPhotonPlayerDisconnected()
+    {
+        UpdateListOfPlayers();
     }
 
     public void UpdateListOfPlayers()
@@ -56,15 +90,5 @@ public class GameManager : MonoBehaviour {
         {
             TxtPlayerList.text += player.NickName + "\t Score: " + player.GetScore() + "\n";
         }
-    }
-
-    void OnPhotonPlayerConnected()
-    {
-        DisplayPlayers();
-    }
-
-    void OnPhotonPlayerDisconnected()
-    {
-        DisplayPlayers();
     }
 }
