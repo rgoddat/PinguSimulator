@@ -46,11 +46,6 @@ public class PickFish : MonoBehaviour
     [PunRPC]
     void DestroyGOMasterClient(string obj)
     {
-        if (GameObject.Find("Fishes").transform.childCount == 1)
-        {
-            view.RPC("EndOfGame", PhotonTargets.All);
-        }
-        //Debug.Log("RPC Received, destroy " + obj);
         view.RPC("PlayPickSoundForAll", PhotonTargets.All, obj);
         GameObject goToDestroy = GameObject.Find(obj);
         goToDestroy.tag = "Untagged";
@@ -71,10 +66,5 @@ public class PickFish : MonoBehaviour
         //Debug.Log("UpdatingList");
         GameObject.Find("GameManager").GetComponent<GameManager>().UpdateListOfPlayers();
     }
-
-    [PunRPC]
-    void EndOfGame()
-    {
-        PhotonNetwork.LoadLevel("Lobby");
-    }
+    
 }

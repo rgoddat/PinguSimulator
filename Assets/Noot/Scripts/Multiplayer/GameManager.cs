@@ -9,21 +9,23 @@ public class GameManager : MonoBehaviour {
     public Text TxtPlayerList;
     public Text TxtScore;
     public Text TxtWaitForPlayer;
+    public Text TxtTimer;
     public GameObject PlayerPrefab;
     public GameObject MainCamera;
     public Transform SpawnPoint;
 
-    private const int MIN_PLAYER_COUNT = 2;
+    private float elapsedTime = 0;
+    private bool playing = false;
+
+    private const int MIN_PLAYER_COUNT = 1;
+
+    //Time limit in seconds
+    private const float TIME_LIMIT = 60.0f;
 
     // Use this for initialization
     void Start()
     {
         OnJoinedRoom();
-        //GameObject connectedPlayer = PhotonNetwork.Instantiate(PlayerPrefab.name, SpawnPoint.position, Quaternion.identity, 0);
-        //connectedPlayer.GetComponent<FirstPersonController>().enabled = true;
-        //connectedPlayer.GetComponentInChildren<Camera>().enabled = true;
-
-        //connectedPlayer.GetComponentInChildren<Camera>().GetComponent<AudioListener>().enabled = true;
     }
 
     public void BackToLooby()
@@ -34,7 +36,19 @@ public class GameManager : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        if (playing)
+        {
+            elapsedTime += Time.deltaTime;
 
+            //Update time counter on screen
+            TxtTimer.text = TimeToStringMinSec(TIME_LIMIT - elapsedTime);
+
+            if(elapsedTime > TIME_LIMIT)
+            {
+                //End the game session
+                PhotonNetwork.LoadLevel("Lobby");
+            }
+        }
     }
 
     void OnLeftRoom()
@@ -70,6 +84,8 @@ public class GameManager : MonoBehaviour {
         MyPlayer.GetComponentInChildren<Camera>().GetComponent<AudioListener>().enabled = true;
 
         UpdateListOfPlayers();
+
+        playing = true;
     }
 
     void OnPhotonPlayerConnected()
@@ -90,5 +106,20 @@ public class GameManager : MonoBehaviour {
         {
             TxtPlayerList.text += player.NickName + "\t Score: " + player.GetScore() + "\n";
         }
+    }
+
+    private string TimeToStringMinSec(float time)
+    {
+        int minutes = Mathf.FloorToInt(time / 60);
+
+        int seconds = Mathf.FloorToInt(time % 60);
+
+        if(seconds == 60)
+        {
+            Debug.LogError("seconds");
+            seconds = 0;
+        }
+
+        return string.Format("{0:00}:{1:00}",minutes, seconds);
     }
 }

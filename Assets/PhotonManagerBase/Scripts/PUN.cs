@@ -14,6 +14,10 @@ public class PUN : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
         if (!PhotonNetwork.connected)
         {
             IfPseudo.text = "Player" + Random.Range(1, 400);
