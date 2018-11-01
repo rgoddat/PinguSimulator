@@ -22,7 +22,7 @@ public class PUN : MonoBehaviour {
         {
             IfPseudo.text = "Player" + Random.Range(1, 400);
             IfRoom.text = "MyRoom";
-            PhotonNetwork.ConnectUsingSettings("version1");
+            PhotonNetwork.ConnectUsingSettings("24ad5231c96d08eb3ac4c7a2977e96f4");
         }
 	}
 	

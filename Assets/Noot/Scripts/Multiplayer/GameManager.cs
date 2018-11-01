@@ -17,10 +17,10 @@ public class GameManager : MonoBehaviour {
     private float elapsedTime = 0;
     private bool playing = false;
 
-    private const int MIN_PLAYER_COUNT = 1;
+    private const int MIN_PLAYER_COUNT = 4;
 
     //Time limit in seconds
-    private const float TIME_LIMIT = 60.0f;
+    private const float TIME_LIMIT = 10*60.0f;
 
     // Use this for initialization
     void Start()
@@ -49,6 +49,11 @@ public class GameManager : MonoBehaviour {
                 PhotonNetwork.LoadLevel("Lobby");
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
     }
 
     void OnLeftRoom()
@@ -71,9 +76,9 @@ public class GameManager : MonoBehaviour {
         
 
         //Spawnpoint
-        Vector3 sp = new Vector3(SpawnPoint.transform.position.x + Random.Range(-1.0f, 1.0f), SpawnPoint.transform.position.y, SpawnPoint.transform.position.z + Random.Range(-1.0f, 1.0f));
+        Vector3 sp = new Vector3(SpawnPoint.transform.position.x + Random.Range(-150.0f, 150.0f), SpawnPoint.transform.position.y, SpawnPoint.transform.position.z + Random.Range(-75.0f, 75.0f));
 
-        sp = SpawnPoint.transform.position;
+        //sp = SpawnPoint.transform.position;
 
         GameObject MyPlayer;
 
