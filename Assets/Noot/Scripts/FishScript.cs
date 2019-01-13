@@ -9,4 +9,12 @@ public class FishScript : MonoBehaviour {
         GetComponent<Rigidbody>().isKinematic = true;
         GetComponent<BoxCollider>().isTrigger = true;
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.tag == "Player")
+        {
+            other.gameObject.GetComponent<PickFish>().PickAFish(this.gameObject);
+        }
+    }
 }

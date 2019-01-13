@@ -6,7 +6,6 @@ using UnityEngine.UI;
 public class PickFish : MonoBehaviour
 {
     public AudioClip SoundFishPick;
-    private ScoreManager scoreManager;
     private PhotonView view;
     private Text txtScore;
 
@@ -15,25 +14,19 @@ public class PickFish : MonoBehaviour
 
     private void Start()
     {
-        scoreManager = GetComponent<ScoreManager>();
         view = GetComponent<PhotonView>();
         txtScore = GetComponentInChildren<Text>();
     }
 
-    private void OnTriggerEnter(Collider collision)
+    public void PickAFish(GameObject fish)
     {
-        //Debug.Log("collision with" + collision.gameObject.name);
-        if(collision.gameObject.tag == "Fish")
+        if (view.isMine)
         {
-            if (view.isMine)
-            {
-                view.RPC("DestroyGOMasterClient", PhotonTargets.MasterClient, collision.gameObject.name);
-                score++;
-                PhotonNetwork.player.SetScore(score);
-                txtScore.text = null;
-                txtScore.text = PhotonNetwork.player.GetScore().ToString();
-                view.RPC("UpdateListScoreForAllPlayers", PhotonTargets.All);
-            }
+            view.RPC("DestroyGOMasterClient", PhotonTargets.MasterClient, fish.name);
+            score++;
+            PhotonNetwork.player.SetScore(score);
+            txtScore.text = PhotonNetwork.player.GetScore().ToString();
+            view.RPC("UpdateListScoreForAllPlayers", PhotonTargets.All);
         }
     }
 
@@ -63,7 +56,6 @@ public class PickFish : MonoBehaviour
     [PunRPC]
     void UpdateListScoreForAllPlayers()
     {
-        //Debug.Log("UpdatingList");
         GameObject.Find("GameManager").GetComponent<GameManager>().UpdateListOfPlayers();
     }
     

@@ -17,6 +17,7 @@ public class PlaySoundOnKeyPressed : MonoBehaviour {
 	void Update () {
 		if (CrossPlatformInputManager.GetButtonDown("Noot") && view.isMine) {
             GetComponent<AudioSource>().PlayOneShot(NootSound);
+            GetComponent<CombatController>().Noot();
 		}
 	}
 }

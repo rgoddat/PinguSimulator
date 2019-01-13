@@ -28,6 +28,9 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private AudioClip m_JumpSound;           // the sound played when character leaves the ground.
     [SerializeField] private AudioClip m_LandSound;           // the sound played when character touches back on ground.
 
+    [SerializeField]
+    public bool Stunned;
+
     private Camera m_Camera;
     private bool m_Jump;
     private float m_YRotation;
@@ -57,13 +60,14 @@ public class FirstPersonController : MonoBehaviour
         m_AudioSource = GetComponent<AudioSource>();
         m_MouseLook.Init(transform, m_Camera.transform);
         view = GetComponent<PhotonView>();
+        Stunned = false;
     }
 
 
     // Update is called once per frame
     private void Update()
     {
-        if (view.isMine)
+        if (view.isMine && !Stunned)
         {
             RotateView();
             // the jump state needs to read here to make sure it is not missed
@@ -100,7 +104,7 @@ public class FirstPersonController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (view.isMine)
+        if (view.isMine && !Stunned)
         {
             float speed;
             GetInput(out speed);

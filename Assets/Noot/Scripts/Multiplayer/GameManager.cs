@@ -17,10 +17,12 @@ public class GameManager : MonoBehaviour {
     private float elapsedTime = 0;
     private bool playing = false;
 
-    private const int MIN_PLAYER_COUNT = 4;
+    private const int MIN_PLAYER_COUNT = 1;
 
     //Time limit in seconds
     private const float TIME_LIMIT = 10*60.0f;
+
+    
 
     // Use this for initialization
     void Start()
@@ -73,24 +75,25 @@ public class GameManager : MonoBehaviour {
             return;
         }
         TxtWaitForPlayer.text = "";
+
+        if (!playing)
+        {
+            //Spawnpoint
+            Vector3 sp = new Vector3(SpawnPoint.transform.position.x + Random.Range(-150.0f, 150.0f), SpawnPoint.transform.position.y, SpawnPoint.transform.position.z + Random.Range(-75.0f, 75.0f));
+
+            GameObject MyPlayer;
+
+            MyPlayer = PhotonNetwork.Instantiate(PlayerPrefab.name, sp, Quaternion.identity, 0);
+            MyPlayer.GetComponent<FirstPersonController>().enabled = true;
+            MyPlayer.GetComponentInChildren<Camera>().enabled = true;
+
+            MyPlayer.GetComponentInChildren<Camera>().GetComponent<AudioListener>().enabled = true;
+
+            UpdateListOfPlayers();
+            playing = true;
+        }
+
         
-
-        //Spawnpoint
-        Vector3 sp = new Vector3(SpawnPoint.transform.position.x + Random.Range(-150.0f, 150.0f), SpawnPoint.transform.position.y, SpawnPoint.transform.position.z + Random.Range(-75.0f, 75.0f));
-
-        //sp = SpawnPoint.transform.position;
-
-        GameObject MyPlayer;
-
-        MyPlayer = PhotonNetwork.Instantiate(PlayerPrefab.name, sp, Quaternion.identity, 0);
-        MyPlayer.GetComponent<FirstPersonController>().enabled = true;
-        MyPlayer.GetComponentInChildren<Camera>().enabled = true;
-
-        MyPlayer.GetComponentInChildren<Camera>().GetComponent<AudioListener>().enabled = true;
-
-        UpdateListOfPlayers();
-
-        playing = true;
     }
 
     void OnPhotonPlayerConnected()

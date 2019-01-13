@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityStandardAssets.CrossPlatformInput;
 
@@ -17,11 +18,39 @@ public class CombatController : MonoBehaviour {
     private AudioSource audioSource;
     private float nextShot;
 
+    [SerializeField]
+    private List<GameObject> ennemiesInNootRange;
+
     // Use this for initialization
     void Start () {
         view = GetComponent<PhotonView>();
         audioSource = GetComponent<AudioSource>();
+        ennemiesInNootRange = new List<GameObject>();
 	}
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (view.isMine)
+        {
+            if (other.gameObject.tag == "Player" && other.gameObject != this.gameObject)
+            {
+                if (!ennemiesInNootRange.Contains(other.gameObject))
+                {
+                    ennemiesInNootRange.Add(other.gameObject);
+                }
+
+            }
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if(other.gameObject.tag == "Player" && view.isMine)
+        {
+            Debug.Log("Removing target");
+            ennemiesInNootRange.Remove(other.gameObject);
+        }
+    }
 
     private void FixedUpdate()
     {
@@ -35,13 +64,26 @@ public class CombatController : MonoBehaviour {
 
     public void DropFish(PhotonPlayer owner)
     {
-        Debug.Log("DropFish ?");
         if (owner.GetScore() > 0 && owner.ID == view.ownerId)
         {
-            Debug.Log("Yes, drop plz" + view.owner.NickName);
             owner.AddScore(-1);
             view.RPC("DropFishMasterClient", PhotonTargets.MasterClient, FishEject.transform.position, transform.TransformDirection(Vector3.back));
             view.RPC("UpdateListScoreForAllPlayers", PhotonTargets.All);
+        }
+    }
+
+    public void Noot()
+    {
+        if (ennemiesInNootRange.Any() && view.isMine)
+        {
+            var listPlayerToStun = new List<int>();
+            foreach (GameObject stunnedPlayer in ennemiesInNootRange)
+            {
+                listPlayerToStun.Add(stunnedPlayer.GetComponent<PhotonView>().ownerId);
+                stunnedPlayer.GetPhotonView().RPC("StunForAMoment", PhotonTargets.Others, listPlayerToStun.ToArray());
+            }
+            //Debug.Log("I (" + view.owner.NickName + ") send the RPC");
+            //view.RPC("StunForAMoment", PhotonTargets.Others, listPlayerToStun.ToArray());
         }
     }
 
@@ -62,5 +104,30 @@ public class CombatController : MonoBehaviour {
         fish.GetComponent<Rigidbody>().isKinematic = false;
         fish.GetComponent<Rigidbody>().AddForce(dir * 200f);
         fish.GetComponent<BoxCollider>().isTrigger = false;
+    }
+
+    [PunRPC]
+    void StunForAMoment(params int[] listStunnedId)
+    {
+        foreach (int id in listStunnedId)
+        {
+            Debug.Log(id + "==?" + view.ownerId);
+            if (id == view.ownerId)
+            {
+                //TODO find the correct player locally
+                StartCoroutine(StunCoroutine(id));
+            }
+        }
+    }
+
+    IEnumerator StunCoroutine(int id)
+    {
+
+        Debug.Log("I (" + view.owner.NickName + ") am stunned");
+        GetComponent<FirstPersonController>().Stunned = true;
+        Debug.Log(GetComponent<FirstPersonController>().Stunned);
+        yield return new WaitForSeconds(20);
+        GetComponent<FirstPersonController>().Stunned = false;
+        Debug.Log(GetComponent<FirstPersonController>().Stunned);
     }
 }
