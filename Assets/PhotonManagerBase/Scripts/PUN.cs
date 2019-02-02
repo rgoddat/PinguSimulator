@@ -12,12 +12,17 @@ public class PUN : MonoBehaviour {
     public InputField IfPseudo;
     public InputField IfRoom;
 
+    public Transform PanelRooms;
+    public GameObject RoomDetailsPrefab;
+
+    private List<GameObject> roomsList;
+
 	// Use this for initialization
 	void Start () {
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-
+        roomsList = new List<GameObject>();
         if (!PhotonNetwork.connected)
         {
             IfPseudo.text = "Player" + Random.Range(1, 400);
@@ -66,10 +71,21 @@ public class PUN : MonoBehaviour {
     void OnReceivedRoomListUpdate()
     {
         Debug.Log("Updating room list");
-        TxtRoomList.text = null;
+
+        //Maybe update current rooms and add new ones
+        //Clear the UI list
+        foreach(GameObject roomObject in roomsList)
+        {
+            Destroy(roomObject);
+        }
+
+        //Populate with new infos
         foreach(RoomInfo roomInfo in PhotonNetwork.GetRoomList())
         {
-            TxtRoomList.text += roomInfo.Name + "[" + roomInfo.PlayerCount + "/" + roomInfo.MaxPlayers + "]\n";
+            var detailRoom = Instantiate(RoomDetailsPrefab);
+            detailRoom.transform.parent = PanelRooms;
+            detailRoom.GetComponent<DetailRoom>().UpdateUI(roomInfo);
+            roomsList.Add(detailRoom);
         }
     }
 }

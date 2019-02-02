@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour {
     public GameObject MainCamera;
     public Transform SpawnPoint;
 
+    private PhotonView view;
     private float elapsedTime = 0;
     private bool playing = false;
 
@@ -27,6 +28,7 @@ public class GameManager : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
+        view = GetComponent<PhotonView>();
         OnJoinedRoom();
     }
 
@@ -74,6 +76,14 @@ public class GameManager : MonoBehaviour {
             TxtWaitForPlayer.text = string.Format("Waiting for {0} more players to start", (MIN_PLAYER_COUNT - PhotonNetwork.room.PlayerCount));// + "/" + PhotonNetwork.room.MaxPlayers);
             return;
         }
+
+        if (PhotonNetwork.isMasterClient)
+        {
+            view.RPC("SynchronizeTime",PhotonTargets.All ,elapsedTime);
+        } else
+        {
+            view.RPC("AskTimeSynchronization", PhotonTargets.MasterClient);
+        }
         TxtWaitForPlayer.text = "";
 
         if (!playing)
@@ -91,9 +101,22 @@ public class GameManager : MonoBehaviour {
 
             UpdateListOfPlayers();
             playing = true;
+
         }
 
         
+    }
+
+    [PunRPC]
+    void SynchronizeTime (float time)
+    {
+        this.elapsedTime = time;
+    }
+
+    [PunRPC]
+    void AskTimeSynchronization()
+    {
+        view.RPC("SynchronizeTime", PhotonTargets.All, elapsedTime);
     }
 
     void OnPhotonPlayerConnected()
